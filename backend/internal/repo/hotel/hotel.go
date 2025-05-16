@@ -189,7 +189,9 @@ func (r *Repo) GetUserCurrentReservation(ctx context.Context, userID int64) (*en
 }
 
 func (r *Repo) UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error {
-	q := "UPDATE reservations SET status = $1 WHERE room_id = $2"
+	q := "UPDATE reservations SET status = $1 WHERE id = $2"
+
+	r.log.Debug("update reservation status query", slog.String("query", q), slog.String("id", id), slog.String("status", status.String()))
 
 	if _, err := r.Pool.Exec(ctx, q, status, id); err != nil {
 		r.log.Error("failed to update reservation status", logger.Error(err))
