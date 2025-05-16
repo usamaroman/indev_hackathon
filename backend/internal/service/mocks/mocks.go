@@ -15,6 +15,7 @@ import (
 	time "time"
 
 	entity "github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
+	types "github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
 	service "github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -109,50 +110,6 @@ func NewMockUser(ctrl *gomock.Controller) *MockUser {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUser) EXPECT() *MockUserMockRecorder {
 	return m.recorder
-}
-
-// DeleteByID mocks base method.
-func (m *MockUser) DeleteByID(ctx context.Context, id string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByID", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteByID indicates an expected call of DeleteByID.
-func (mr *MockUserMockRecorder) DeleteByID(ctx, id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockUser)(nil).DeleteByID), ctx, id)
-}
-
-// GetAll mocks base method.
-func (m *MockUser) GetAll(ctx context.Context) ([]entity.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
-	ret0, _ := ret[0].([]entity.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAll indicates an expected call of GetAll.
-func (mr *MockUserMockRecorder) GetAll(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockUser)(nil).GetAll), ctx)
-}
-
-// GetAllByBusinessID mocks base method.
-func (m *MockUser) GetAllByBusinessID(ctx context.Context, businessID string) ([]entity.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllByBusinessID", ctx, businessID)
-	ret0, _ := ret[0].([]entity.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAllByBusinessID indicates an expected call of GetAllByBusinessID.
-func (mr *MockUserMockRecorder) GetAllByBusinessID(ctx, businessID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllByBusinessID", reflect.TypeOf((*MockUser)(nil).GetAllByBusinessID), ctx, businessID)
 }
 
 // GetByID mocks base method.
@@ -252,6 +209,21 @@ func (mr *MockHotelMockRecorder) GetRoomByID(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomByID", reflect.TypeOf((*MockHotel)(nil).GetRoomByID), ctx, id)
 }
 
+// GetUserCurrentReservation mocks base method.
+func (m *MockHotel) GetUserCurrentReservation(ctx context.Context, userID int64) (*entity.Reservation, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCurrentReservation", ctx, userID)
+	ret0, _ := ret[0].(*entity.Reservation)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCurrentReservation indicates an expected call of GetUserCurrentReservation.
+func (mr *MockHotelMockRecorder) GetUserCurrentReservation(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCurrentReservation", reflect.TypeOf((*MockHotel)(nil).GetUserCurrentReservation), ctx, userID)
+}
+
 // RoomHasReservations mocks base method.
 func (m *MockHotel) RoomHasReservations(ctx context.Context, id string) (bool, error) {
 	m.ctrl.T.Helper()
@@ -265,4 +237,18 @@ func (m *MockHotel) RoomHasReservations(ctx context.Context, id string) (bool, e
 func (mr *MockHotelMockRecorder) RoomHasReservations(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RoomHasReservations", reflect.TypeOf((*MockHotel)(nil).RoomHasReservations), ctx, id)
+}
+
+// UpdateReservationStatus mocks base method.
+func (m *MockHotel) UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateReservationStatus", ctx, id, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateReservationStatus indicates an expected call of UpdateReservationStatus.
+func (mr *MockHotelMockRecorder) UpdateReservationStatus(ctx, id, status any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateReservationStatus", reflect.TypeOf((*MockHotel)(nil).UpdateReservationStatus), ctx, id, status)
 }

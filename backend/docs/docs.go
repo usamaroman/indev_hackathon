@@ -83,6 +83,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/hotel/reservations/{id}": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Обновление статуса брони",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "отель"
+                ],
+                "summary": "Обновление статуса брони",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID брони",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Тело запроса",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateReservationStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v1/hotel/rooms": {
             "post": {
                 "description": "Получение доступных типов комнат",
@@ -280,8 +323,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "state": {
-                    "type": "boolean",
-                    "example": true
+                    "type": "string",
+                    "example": "true"
                 }
             }
         },
@@ -334,6 +377,19 @@ const docTemplate = `{
                 "start_date": {
                     "type": "string",
                     "example": "01.12.2025"
+                }
+            }
+        },
+        "request.UpdateReservationStatus": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "description": "confirmed, checked_in, checked_out",
+                    "type": "string",
+                    "example": "confirmed"
                 }
             }
         },
