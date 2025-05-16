@@ -10,6 +10,23 @@ services:
     ports:
       - "5432:5432"
 
+  redis:
+    image: redis:7.4
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+    command: sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    ports:
+      - "6379:6379"
+    volumes:
+      - app_redis_data:/data
+    healthcheck:
+      test: sh -c "redis-cli -a $$REDIS_PASSWORD ping"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
   service:
     build:
       context: .
@@ -23,6 +40,10 @@ services:
       PG_HOST: postgres
       PG_PORT: 5432
       PG_DATABASE: hotels_system
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 1234
+      REDIS_DB: 0
     volumes:
       - ./config.yaml:/app/config.yaml
     ports:
@@ -32,3 +53,4 @@ services:
 
 volumes:
   app_pg_data:
+  app_redis_data: 

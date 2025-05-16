@@ -12,9 +12,10 @@ import (
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
-func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services, b *box.Client) {
+func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services, b *box.Client, redisClient *redis.Client) {
 	router.Use(middleware.CORS(log))
 	router.Use(middleware.Log(log))
 	router.Use(middleware.Metrics())
@@ -34,5 +35,5 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services,
 
 	v1 := router.Group("/v1")
 
-	newHotelRoutes(log, v1.Group("/hotel"), services.Hotel, authMiddleware, b)
+	newHotelRoutes(log, v1.Group("/hotel"), services.Hotel, authMiddleware, b, redisClient)
 }

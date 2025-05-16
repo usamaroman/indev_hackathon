@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -15,6 +16,7 @@ import (
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/migrations"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/postgresql"
+	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/redis"
 	"github.com/usamaroman/demo_indev_hackathon/backend/schema"
 
 	"github.com/gin-gonic/gin"
@@ -45,6 +47,18 @@ func Run() {
 		os.Exit(1)
 	}
 
+	log.Debug("redis init")
+	redisClient, err := redis.New(cfg.Redis.Host, cfg.Redis.Port, cfg.Redis.Password, cfg.Redis.DB)
+	if err != nil {
+		log.Error("failed to init redis", logger.Error(err))
+		os.Exit(1)
+	}
+
+	if err = redisClient.Set(context.Background(), b.GetBleName(), b.GetToken(), 0).Err(); err != nil {
+		log.Error("failed to init redis", logger.Error(err))
+		os.Exit(1)
+	}
+
 	migrations.Migrate(log, &schema.DB, &cfg.Postgresql)
 
 	log.Debug("repositories init")
@@ -60,7 +74,7 @@ func Run() {
 	})
 
 	r := router()
-	v1.NewRouter(log, r, services, b)
+	v1.NewRouter(log, r, services, b, redisClient)
 
 	log.Debug("server starting")
 	server := httpsrv.New(log, cfg, r)

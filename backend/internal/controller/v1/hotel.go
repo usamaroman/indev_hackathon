@@ -2,6 +2,7 @@ package v1
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
 )
 
 type hotelRoutes struct {
@@ -26,9 +28,10 @@ type hotelRoutes struct {
 
 	hotelService service.Hotel
 	box          *box.Client
+	cache        *redis.Client
 }
 
-func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.Hotel, authMiddleware *middleware.AuthMiddleware, b *box.Client) {
+func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.Hotel, authMiddleware *middleware.AuthMiddleware, b *box.Client, redisClient *redis.Client) {
 	log = log.With(slog.String("component", "hotel routes"))
 
 	v := validator.New()
@@ -38,6 +41,7 @@ func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.H
 		valid:        v,
 		hotelService: hotelService,
 		box:          b,
+		cache:        redisClient,
 	}
 
 	g.POST("/rooms", authMiddleware.PublicMiddleware(), r.getAvailableRooms)
@@ -45,6 +49,8 @@ func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.H
 	g.POST("/rooms/reserve", authMiddleware.CustomersOnly(), r.reserveRoom)
 	g.PATCH("/rooms/reservations/:id", authMiddleware.HotelsOnly(), r.updateReservationStatus)
 	g.POST("/rooms/light", authMiddleware.CustomersOnly(), r.roomLights)
+	g.GET("/rooms/token", authMiddleware.CustomersOnly(), r.getRoomToken)
+	g.GET("/rooms/dump_token", r.getToken)
 }
 
 // @Summary Получение доступных типов комнат
@@ -313,4 +319,48 @@ func (r *hotelRoutes) updateReservationStatus(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// @Summary Получение токена комнаты [ХАРДКОД]
+// @Description Получение токена комнаты [ХАРДКОД]
+// @Tags отель
+// @Produce json
+// @Success 200 {object} response.Token
+// @Router /v1/hotel/rooms/dump_token [get]
+func (r *hotelRoutes) getToken(c *gin.Context) {
+	c.JSON(http.StatusOK, response.Token{Token: "tZAZwckrp2ZH4fCM"})
+}
+
+// @Summary Получение токена комнаты
+// @Description Получение токена комнаты
+// @Security BearerAuth
+// @Tags отель
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Token
+// @Router /v1/hotel/rooms/token [get]
+func (r *hotelRoutes) getRoomToken(c *gin.Context) {
+	userID := c.GetInt64(middleware.UserIDCtx)
+
+	res, err := r.hotelService.GetUserCurrentReservation(c, userID)
+	if err != nil {
+		r.log.Error("failed to get user current reservation", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	token, err := r.cache.Get(c, fmt.Sprint(res.RoomID)).Result()
+	if err != nil {
+		r.log.Error("failed to get room token", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, response.Token{Token: token})
 }

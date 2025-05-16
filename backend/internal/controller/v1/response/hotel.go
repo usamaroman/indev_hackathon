@@ -10,3 +10,7 @@ type RoomInfo struct {
 	Room     *entity.Room `json:"room"`
 	IsActive bool         `json:"is_active"`
 }
+
+type Token struct {
+	Token string `json:"token"`
+}

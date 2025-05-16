@@ -18,3 +18,8 @@ postgres:
   port: 5432
   database: hotels_system
   ssl_mode: disable
+redis:
+  host: localhost
+  port: 6379
+  password: 1234
+  db: 0

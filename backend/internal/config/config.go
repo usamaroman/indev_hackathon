@@ -15,6 +15,7 @@ const defaultConfigFile = "config.yaml"
 type Config struct {
 	HTTP       HTTP       `yaml:"http"`
 	Postgresql Postgresql `yaml:"postgresql"`
+	Redis      Redis      `yaml:"redis"`
 	JWT        JWT        `yaml:"jwt"`
 }
 
@@ -35,6 +36,13 @@ type Postgresql struct {
 type JWT struct {
 	SignKey  string        `yaml:"sign_key" env:"JWT_KEY" env-default:"secret"`
 	TokenTTL time.Duration `yaml:"token_ttl" env:"JWT_TTL" env-default:"60m"`
+}
+
+type Redis struct {
+	Host     string `yaml:"host" env:"REDIS_HOST" env-default:"127.0.0.1"`
+	Port     string `yaml:"port" env:"REDIS_PORT" env-default:"6379"`
+	Password string `yaml:"password" env:"REDIS_PASSWORD" env-default:""`
+	DB       int    `yaml:"db" env:"REDIS_DB" env-default:"0"`
 }
 
 func New(log *slog.Logger) (*Config, error) {
