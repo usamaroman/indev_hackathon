@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo/repoerrors"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/postgresql"
 
@@ -155,6 +157,42 @@ func (r *Repo) CreateReservation(ctx context.Context, rsv *entity.Reservation) e
 
 	if _, err := r.Pool.Exec(ctx, q, rsv.RoomID, rsv.UserID, rsv.CheckIn, rsv.CheckOut); err != nil {
 		r.log.Error("failed to create reservation", logger.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repo) GetUserCurrentReservation(ctx context.Context, userID int64) (*entity.Reservation, error) {
+	q := "SELECT * FROM reservations WHERE user_id = $1 AND status = 'checked_in'"
+
+	r.log.Debug("get user current reservation query", slog.String("query", q), slog.Int64("user id", userID))
+
+	rows, err := r.Pool.Query(ctx, q, userID)
+	if err != nil {
+		r.log.Error("failed to get user current reservation from database", logger.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+
+	res, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[entity.Reservation])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, repoerrors.ErrNotFound
+		}
+
+		r.log.Error("failed to collect rows", logger.Error(err))
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (r *Repo) UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error {
+	q := "UPDATE reservations SET status = $1 WHERE room_id = $2"
+
+	if _, err := r.Pool.Exec(ctx, q, status, id); err != nil {
+		r.log.Error("failed to update reservation status", logger.Error(err))
 		return err
 	}
 

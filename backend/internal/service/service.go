@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo"
 )
 
@@ -21,11 +22,8 @@ type Auth interface {
 }
 
 type User interface {
-	GetAll(ctx context.Context) ([]entity.User, error)
-	GetAllByBusinessID(ctx context.Context, businessID string) ([]entity.User, error)
 	GetByID(ctx context.Context, id int64) (*entity.User, error)
 	GetByLogin(ctx context.Context, login string) (*entity.User, error)
-	DeleteByID(ctx context.Context, id string) error
 }
 
 type CreateReservationInput struct {
@@ -40,6 +38,8 @@ type Hotel interface {
 	GetRoomByID(ctx context.Context, id string) (*entity.Room, error)
 	CreateReservation(ctx context.Context, input *CreateReservationInput) error
 	RoomHasReservations(ctx context.Context, id string) (bool, error)
+	UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error
+	GetUserCurrentReservation(ctx context.Context, userID int64) (*entity.Reservation, error)
 }
 
 type Dependencies struct {

@@ -32,7 +32,7 @@ func Run() {
 
 	log.Debug("box init")
 
-	b, err := box.New("192.168.1.100", "7000")
+	b, err := box.New(log, "192.168.1.100", "7000")
 	if err != nil {
 		log.Error("failed to init box", logger.Error(err))
 		os.Exit(1)

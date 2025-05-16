@@ -1,14 +1,17 @@
 package v1
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/middleware"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/request"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/response"
 	_ "github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
@@ -40,6 +43,7 @@ func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.H
 	g.POST("/rooms", authMiddleware.PublicMiddleware(), r.getAvailableRooms)
 	g.GET("/rooms/:id", authMiddleware.HotelsOnly(), r.getRoomByID)
 	g.POST("/rooms/reserve", authMiddleware.CustomersOnly(), r.reserveRoom)
+	g.PATCH("/rooms/reservations/:id", authMiddleware.HotelsOnly(), r.updateReservationStatus)
 	g.POST("/rooms/light", authMiddleware.CustomersOnly(), r.roomLights)
 }
 
@@ -211,7 +215,43 @@ func (r *hotelRoutes) roomLights(c *gin.Context) {
 		return
 	}
 
-	switch req.State {
+	state, err := strconv.ParseBool(req.State)
+	if err != nil {
+		r.log.Error("failed to parse state", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	lightName := r.box.GetBleName()
+
+	rsv, err := r.hotelService.GetUserCurrentReservation(c, c.GetInt64(middleware.UserIDCtx))
+	if err != nil {
+		if errors.Is(err, service.ErrReservationNotFound) {
+			r.log.Error("user does not have a reservation", logger.Error(err))
+			c.JSON(http.StatusForbidden, gin.H{
+				"error": "user does not have a reservation",
+			})
+			return
+		}
+
+		r.log.Error("failed to get user current reservation", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if rsv.RoomID != lightName {
+		r.log.Error("user does not have a light", logger.Error(err))
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "user does not have a light",
+		})
+		return
+	}
+
+	switch state {
 	case true:
 		if err := r.box.LightOn(); err != nil {
 			r.log.Error("failed to turn on the light", logger.Error(err))
@@ -226,6 +266,50 @@ func (r *hotelRoutes) roomLights(c *gin.Context) {
 				"error": err.Error(),
 			})
 		}
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// @Summary Обновление статуса брони
+// @Description Обновление статуса брони
+// @Security BearerAuth
+// @Tags отель
+// @Accept json
+// @Produce json
+// @Param id path string true "ID брони"
+// @Param input body request.UpdateReservationStatus true "Тело запроса"
+// @Success 204
+// @Router /v1/hotel/reservations/{id} [patch]
+func (r *hotelRoutes) updateReservationStatus(c *gin.Context) {
+	reservationID := c.Param("id")
+
+	var req request.UpdateReservationStatus
+	if err := c.ShouldBindJSON(&req); err != nil {
+		r.log.Error("failed to read request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	if err := validator.New().Struct(req); err != nil {
+		r.log.Error("failed to validate request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	if err := r.hotelService.UpdateReservationStatus(c, reservationID, types.StringToReservationType[req.Status]); err != nil {
+		r.log.Error("failed to update reservation status", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
 	}
 
 	c.Status(http.StatusNoContent)

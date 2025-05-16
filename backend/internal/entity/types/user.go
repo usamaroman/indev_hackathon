@@ -20,3 +20,5 @@ var StringToUserType = map[string]UserType{
 	"admin":    AdminUser,
 	"customer": Customer,
 }
+
+

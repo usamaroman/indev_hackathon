@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"time"
 
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo/repoerrors"
 )
 
 type HotelService struct {
@@ -54,4 +57,21 @@ func (s *HotelService) CreateReservation(ctx context.Context, input *CreateReser
 	}
 
 	return nil
+}
+
+func (s *HotelService) GetUserCurrentReservation(ctx context.Context, userID int64) (*entity.Reservation, error) {
+	rsv, err := s.hotelRepo.GetUserCurrentReservation(ctx, userID)
+	if err != nil {
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return nil, ErrReservationNotFound
+		}
+
+		return nil, err
+	}
+
+	return rsv, nil
+}
+
+func (s *HotelService) UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error {
+	return s.hotelRepo.UpdateReservationStatus(ctx, id, status)
 }

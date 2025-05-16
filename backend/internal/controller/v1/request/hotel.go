@@ -12,5 +12,9 @@ type ReserveRoom struct {
 }
 
 type Light struct {
-	State bool `json:"state" validate:"required" example:"true"`
+	State string `json:"state" validate:"required" example:"true"`
+}
+
+type UpdateReservationStatus struct {
+	Status string `json:"status" validate:"required" example:"confirmed" enum:"confirmed,checked_in,checked_out"` // confirmed, checked_in, checked_out
 }

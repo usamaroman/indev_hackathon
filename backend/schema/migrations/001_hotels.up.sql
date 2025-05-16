@@ -6,6 +6,22 @@ CREATE TABLE IF NOT EXISTS hotels (
 
 INSERT INTO hotels (name) VALUES ('Hackathon hotel');
 
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    login VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255),
+    user_type user_type NOT NULL,
+    hotel_id INT REFERENCES hotels(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+INSERT INTO users (login, password, user_type) VALUES
+('customer', 'customer', 'customer');
+
+INSERT INTO users (login, password, user_type, hotel_id) VALUES
+('admin', 'admin', 'admin', 1);
+
 CREATE TABLE IF NOT EXISTS room_types (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,      
@@ -22,13 +38,14 @@ CREATE TABLE IF NOT EXISTS rooms (
     floor INTEGER NOT NULL
 );
 
+
 CREATE TABLE IF NOT EXISTS reservations (
     id SERIAL PRIMARY KEY,
     room_id TEXT REFERENCES rooms(room_number),
     user_id INT REFERENCES users(id),
     check_in DATE NOT NULL,
     check_out DATE NOT NULL,
-    status VARCHAR(20) DEFAULT 'confirmed', -- 'checked_in'
+    status reservation_type DEFAULT 'confirmed', 
     created_at TIMESTAMP DEFAULT NOW() 
 );
 
@@ -42,4 +59,5 @@ INSERT INTO rooms (hotel_id, room_type_id, floor, room_number) VALUES
 (1, 3, 1, '107'),
 (1, 3, 1, '103'),
 (1, 4, 1, '101'),
-(1, 4, 1, '102');
+(1, 4, 1, '102'),
+(1, 1, 1, 'ROOM_38');

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
+	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo/hotel"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo/user"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/postgresql"
@@ -13,10 +14,7 @@ import (
 
 type User interface {
 	GetByLogin(ctx context.Context, login string) (*entity.User, error)
-	GetAll(ctx context.Context) ([]entity.User, error)
-	GetAllByBusinessID(ctx context.Context, businessID string) ([]entity.User, error)
 	GetByID(ctx context.Context, id int64) (*entity.User, error)
-	DeleteByID(ctx context.Context, id string) error
 }
 
 type Hotel interface {
@@ -25,6 +23,8 @@ type Hotel interface {
 	CreateReservation(ctx context.Context, rsv *entity.Reservation) error
 	GetAvailableRoomByType(ctx context.Context, roomType int64, start, end time.Time) (string, error)
 	RoomHasReservations(ctx context.Context, id string) (bool, error)
+	GetUserCurrentReservation(ctx context.Context, userID int64) (*entity.Reservation, error)
+	UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error
 }
 
 type Repositories struct {
