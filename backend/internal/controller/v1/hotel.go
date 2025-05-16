@@ -10,6 +10,7 @@ import (
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/response"
 	_ "github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
+	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -21,9 +22,10 @@ type hotelRoutes struct {
 	valid *validator.Validate
 
 	hotelService service.Hotel
+	box          *box.Client
 }
 
-func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.Hotel, authMiddleware *middleware.AuthMiddleware) {
+func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.Hotel, authMiddleware *middleware.AuthMiddleware, b *box.Client) {
 	log = log.With(slog.String("component", "hotel routes"))
 
 	v := validator.New()
@@ -32,11 +34,13 @@ func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.H
 		log:          log,
 		valid:        v,
 		hotelService: hotelService,
+		box:          b,
 	}
 
 	g.POST("/rooms", authMiddleware.PublicMiddleware(), r.getAvailableRooms)
 	g.GET("/rooms/:id", authMiddleware.HotelsOnly(), r.getRoomByID)
 	g.POST("/rooms/reserve", authMiddleware.CustomersOnly(), r.reserveRoom)
+	g.POST("/rooms/light", authMiddleware.CustomersOnly(), r.roomLights)
 }
 
 // @Summary Получение доступных типов комнат
@@ -172,6 +176,56 @@ func (r *hotelRoutes) reserveRoom(c *gin.Context) {
 			"error": err.Error(),
 		})
 		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// @Summary Свет
+// @Description Тогл света в комнате
+// @Security BearerAuth
+// @Tags отель
+// @Accept json
+// @Produce json
+// @Param input body request.Light true "Тело запроса"
+// @Success 204
+// @Router /v1/hotel/rooms/light [post]
+func (r *hotelRoutes) roomLights(c *gin.Context) {
+	var req request.Light
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		r.log.Error("failed to read request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	if err := validator.New().Struct(req); err != nil {
+		r.log.Error("failed to validate request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	switch req.State {
+	case true:
+		if err := r.box.LightOn(); err != nil {
+			r.log.Error("failed to turn on the light", logger.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+		}
+	case false:
+		if err := r.box.LightOff(); err != nil {
+			r.log.Error("failed to turn off the light", logger.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	c.Status(http.StatusNoContent)

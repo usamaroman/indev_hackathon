@@ -9,11 +9,12 @@ import (
 	_ "github.com/usamaroman/demo_indev_hackathon/backend/docs"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/middleware"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
+	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services) {
+func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services, b *box.Client) {
 	router.Use(middleware.CORS(log))
 	router.Use(middleware.Log(log))
 	router.Use(middleware.Metrics())
@@ -33,5 +34,5 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services)
 
 	v1 := router.Group("/v1")
 
-	newHotelRoutes(log, v1.Group("/hotel"), services.Hotel, authMiddleware)
+	newHotelRoutes(log, v1.Group("/hotel"), services.Hotel, authMiddleware, b)
 }

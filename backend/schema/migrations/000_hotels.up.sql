@@ -25,8 +25,7 @@ CREATE TABLE IF NOT EXISTS rooms (
 CREATE TABLE IF NOT EXISTS reservations (
     id SERIAL PRIMARY KEY,
     room_id TEXT REFERENCES rooms(room_number),
-    guest_name TEXT NOT NULL,
-    guest_email TEXT,
+    user_id INT REFERENCES users(id),
     check_in DATE NOT NULL,
     check_out DATE NOT NULL,
     status VARCHAR(20) DEFAULT 'confirmed', -- 'checked_in'

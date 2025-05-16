@@ -24,11 +24,10 @@ type Room struct {
 }
 
 type Reservation struct {
-	ID         int64     `json:"id" db:"id"`
-	RoomID     string    `json:"room_id" db:"room_id"`
-	GuestName  string    `json:"guest_name" db:"guest_name"`
-	GuestEmail string    `json:"guest_email" db:"guest_email"`
-	CheckIn    time.Time `json:"check_in" db:"check_in"`
-	CheckOut   time.Time `json:"check_out" db:"check_out"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	ID        int64     `json:"id" db:"id"`
+	RoomID    string    `json:"room_id" db:"room_id"`
+	UserID    int64     `json:"user_id" db:"user_id"`
+	CheckIn   time.Time `json:"check_in" db:"check_in"`
+	CheckOut  time.Time `json:"check_out" db:"check_out"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }

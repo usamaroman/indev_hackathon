@@ -10,6 +10,7 @@ import (
 	v1 "github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
+	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/httpsrv"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/migrations"
@@ -26,6 +27,14 @@ func Run() {
 	cfg, err := config.New(log)
 	if err != nil {
 		log.Error("failed to init config", logger.Error(err))
+		os.Exit(1)
+	}
+
+	log.Debug("box init")
+
+	b, err := box.New("192.168.1.100", "7000")
+	if err != nil {
+		log.Error("failed to init box", logger.Error(err))
 		os.Exit(1)
 	}
 
@@ -51,7 +60,7 @@ func Run() {
 	})
 
 	r := router()
-	v1.NewRouter(log, r, services)
+	v1.NewRouter(log, r, services, b)
 
 	log.Debug("server starting")
 	server := httpsrv.New(log, cfg, r)

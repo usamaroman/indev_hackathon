@@ -10,3 +10,7 @@ type ReserveRoom struct {
 	StartDate string `json:"start_date" validate:"required" example:"01.12.2025"`
 	EndDate   string `json:"end_date" validate:"required" example:"29.05.2026"`
 }
+
+type Light struct {
+	State bool `json:"state" validate:"required" example:"true"`
+}

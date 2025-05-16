@@ -121,20 +121,6 @@ func (r *Repo) GetRoomByID(ctx context.Context, id string) (*entity.Room, error)
 	return &room, nil
 }
 
-func (r *Repo) ReserveRoom(ctx context.Context, rsv entity.Reservation) (int64, error) {
-	q := "INSERT INTO reservations(room_id, guest_name, guest_email, check_in, check_out) VALUES ($1, $2, $3, $4, $5) RETURNING id"
-
-	r.log.Debug("reservation room query", slog.String("query", q), slog.Any("room id", rsv.RoomID))
-
-	var id int64
-	if err := r.Pool.QueryRow(ctx, q, rsv.RoomID, rsv.GuestName, rsv.GuestEmail, rsv.CheckIn, rsv.CheckOut).Scan(&id); err != nil {
-		r.log.Error("failed to reserve room in database", logger.Error(err))
-		return 0, err
-	}
-
-	return id, nil
-}
-
 func (r *Repo) GetAvailableRoomByType(ctx context.Context, roomType int64, start, end time.Time) (string, error) {
 	q := `
 SELECT r.room_number
@@ -165,9 +151,9 @@ LIMIT 1;
 }
 
 func (r *Repo) CreateReservation(ctx context.Context, rsv *entity.Reservation) error {
-	q := "INSERT INTO reservations (room_id, guest_name, check_in, check_out) VALUES ($1, $2, $3, $4)"
+	q := "INSERT INTO reservations (room_id, user_id, check_in, check_out) VALUES ($1, $2, $3, $4)"
 
-	if _, err := r.Pool.Exec(ctx, q, rsv.RoomID, rsv.GuestName, rsv.CheckIn, rsv.CheckOut); err != nil {
+	if _, err := r.Pool.Exec(ctx, q, rsv.RoomID, rsv.UserID, rsv.CheckIn, rsv.CheckOut); err != nil {
 		r.log.Error("failed to create reservation", logger.Error(err))
 		return err
 	}

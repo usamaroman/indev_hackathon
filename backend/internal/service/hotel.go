@@ -44,16 +44,11 @@ func (s *HotelService) CreateReservation(ctx context.Context, input *CreateReser
 		return err
 	}
 
-	user, err := s.userRepo.GetByID(ctx, input.UserID)
-	if err != nil {
-		return err
-	}
-
 	if err = s.hotelRepo.CreateReservation(ctx, &entity.Reservation{
-		RoomID:    roomID,
-		GuestName: user.Login,
-		CheckIn:   input.StartDate,
-		CheckOut:  input.EndDate,
+		RoomID:   roomID,
+		UserID:   input.UserID,
+		CheckIn:  input.StartDate,
+		CheckOut: input.EndDate,
 	}); err != nil {
 		return err
 	}

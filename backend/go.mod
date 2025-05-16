@@ -1,6 +1,6 @@
 module github.com/usamaroman/demo_indev_hackathon/backend
 
-go 1.24
+go 1.23.0
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -15,6 +15,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.3
 	go.uber.org/mock v0.4.0
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
@@ -69,7 +70,6 @@ require (
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/tools v0.24.0 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
