@@ -10,18 +10,6 @@ services:
     ports:
       - "5432:5432"
 
-  migrations:
-    build:
-      context: .
-      dockerfile: migrations.Dockerfile
-    environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "5432"
-      POSTGRES_HOST: "postgres"
-      POSTGRES_DB: "hotels_system"
-    depends_on:
-      - postgres
-  
   service:
     build:
       context: .

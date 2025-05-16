@@ -12,7 +12,9 @@ import (
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/httpsrv"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
+	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/migrations"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/postgresql"
+	"github.com/usamaroman/demo_indev_hackathon/backend/schema"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,13 +36,15 @@ func Run() {
 		os.Exit(1)
 	}
 
+	migrations.Migrate(log, &schema.DB, &cfg.Postgresql)
+
 	log.Debug("repositories init")
 	repositories := repo.NewRepositories(log, postgres)
 
 	log.Debug("services init")
 	services := service.NewServices(&service.Dependencies{
-		Log:      log,
-		Repos:    repositories,
+		Log:   log,
+		Repos: repositories,
 
 		SignKey:  cfg.JWT.SignKey,
 		TokenTTL: cfg.JWT.TokenTTL,
