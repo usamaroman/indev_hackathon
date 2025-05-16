@@ -280,7 +280,7 @@ func (r *hotelRoutes) roomLights(c *gin.Context) {
 // @Param id path string true "ID брони"
 // @Param input body request.UpdateReservationStatus true "Тело запроса"
 // @Success 204
-// @Router /v1/hotel/reservations/{id} [patch]
+// @Router /v1/hotel/rooms/reservations/{id} [patch]
 func (r *hotelRoutes) updateReservationStatus(c *gin.Context) {
 	reservationID := c.Param("id")
 
