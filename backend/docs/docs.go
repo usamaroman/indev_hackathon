@@ -117,6 +117,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/hotel/rooms/dump_token": {
+            "get": {
+                "description": "Получение токена комнаты [ХАРДКОД]",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "отель"
+                ],
+                "summary": "Получение токена комнаты [ХАРДКОД]",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Token"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/hotel/rooms/light": {
             "post": {
                 "security": [
@@ -228,6 +248,34 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/hotel/rooms/token": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получение токена комнаты",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "отель"
+                ],
+                "summary": "Получение токена комнаты",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Token"
+                        }
                     }
                 }
             }
@@ -441,6 +489,14 @@ const docTemplate = `{
                 },
                 "room": {
                     "$ref": "#/definitions/entity.Room"
+                }
+            }
+        },
+        "response.Token": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
                 }
             }
         },

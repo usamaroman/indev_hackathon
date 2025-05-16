@@ -119,6 +119,11 @@ definitions:
       room:
         $ref: '#/definitions/entity.Room'
     type: object
+  response.Token:
+    properties:
+      token:
+        type: string
+    type: object
   response.User:
     properties:
       business_id:
@@ -224,6 +229,19 @@ paths:
       summary: Получение информации по комнате для админки
       tags:
       - отель
+  /v1/hotel/rooms/dump_token:
+    get:
+      description: Получение токена комнаты [ХАРДКОД]
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Token'
+      summary: Получение токена комнаты [ХАРДКОД]
+      tags:
+      - отель
   /v1/hotel/rooms/light:
     post:
       consumes:
@@ -293,6 +311,23 @@ paths:
       security:
       - BearerAuth: []
       summary: Бронь
+      tags:
+      - отель
+  /v1/hotel/rooms/token:
+    get:
+      consumes:
+      - application/json
+      description: Получение токена комнаты
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Token'
+      security:
+      - BearerAuth: []
+      summary: Получение токена комнаты
       tags:
       - отель
 securityDefinitions:
