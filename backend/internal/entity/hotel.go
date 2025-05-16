@@ -1,0 +1,34 @@
+package entity
+
+import (
+	"time"
+)
+
+type Hotel struct {
+	ID        string    `json:"id" db:"id"`
+	Name      string    `json:"name" db:"name"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+}
+
+type RoomType struct {
+	ID       int64  `json:"id" db:"id"`
+	Name     string `json:"name" db:"name"`
+	Capacity int64  `json:"capacity" db:"capacity"`
+}
+
+type Room struct {
+	Number     string `json:"room_number" db:"room_number"`
+	HotelID    int64  `json:"hotel_id" db:"hotel_id"`
+	RoomTypeID int64  `json:"room_type_id" db:"room_type_id"`
+	Floor      int64  `json:"floor" db:"floor"`
+}
+
+type Reservation struct {
+	ID         int64     `json:"id" db:"id"`
+	RoomID     string    `json:"room_id" db:"room_id"`
+	GuestName  string    `json:"guest_name" db:"guest_name"`
+	GuestEmail string    `json:"guest_email" db:"guest_email"`
+	CheckIn    time.Time `json:"check_in" db:"check_in"`
+	CheckOut   time.Time `json:"check_out" db:"check_out"`
+	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+}

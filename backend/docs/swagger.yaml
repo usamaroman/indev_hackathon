@@ -1,0 +1,230 @@
+definitions:
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.GetRooms:
+    properties:
+      end_date:
+        example: 29.05.2026
+        type: string
+      start_date:
+        example: 01.12.2025
+        type: string
+    required:
+    - end_date
+    - start_date
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Login:
+    properties:
+      login:
+        example: admin
+        type: string
+      password:
+        example: admin
+        maxLength: 50
+        minLength: 4
+        type: string
+    required:
+    - login
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Refresh:
+    properties:
+      refresh_token:
+        example: refresh_token
+        type: string
+    required:
+    - refresh_token
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.ReserveRoom:
+    properties:
+      end_date:
+        example: 29.05.2026
+        type: string
+      room_type:
+        example: 1
+        type: integer
+      start_date:
+        example: 01.12.2025
+        type: string
+    required:
+    - end_date
+    - room_type
+    - start_date
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.GetAllRooms:
+    properties:
+      rooms:
+        items:
+          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.RoomType'
+        type: array
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Login:
+    properties:
+      access_token:
+        example: access_token
+        type: string
+      refresh_token:
+        example: refresh_token
+        type: string
+      user:
+        $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.User'
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Refresh:
+    properties:
+      access_token:
+        example: access_token
+        type: string
+      refresh_token:
+        example: refresh_token
+        type: string
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.User:
+    properties:
+      business_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      user_type:
+        type: string
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.Room:
+    properties:
+      floor:
+        type: integer
+      hotel_id:
+        type: integer
+      room_number:
+        type: string
+      room_type_id:
+        type: integer
+    type: object
+  github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.RoomType:
+    properties:
+      capacity:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: CRM Backend API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Логин
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Login'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Login'
+      summary: Логин
+      tags:
+      - аутентификация
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Регенерация токена
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Refresh'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Refresh'
+      summary: Регенерация токена
+      tags:
+      - аутентификация
+  /v1/hotel/rooms:
+    post:
+      consumes:
+      - application/json
+      description: Получение доступных типов комнат
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.GetRooms'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.GetAllRooms'
+      summary: Получение доступных типов комнат
+      tags:
+      - отель
+  /v1/hotel/rooms/{id}:
+    get:
+      description: Получение информации по комнате для админки
+      parameters:
+      - description: Идентификатор комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.Room'
+      security:
+      - BearerAuth: []
+      summary: Получение информации по комнате для админки
+      tags:
+      - отель
+  /v1/hotel/rooms/reserve:
+    post:
+      consumes:
+      - application/json
+      description: Бронь комнаты
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.ReserveRoom'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Бронь
+      tags:
+      - отель
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
