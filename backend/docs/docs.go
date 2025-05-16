@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Login"
+                            "$ref": "#/definitions/request.Login"
                         }
                     }
                 ],
@@ -43,7 +43,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Login"
+                            "$ref": "#/definitions/response.Login"
                         }
                     }
                 }
@@ -69,7 +69,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Refresh"
+                            "$ref": "#/definitions/request.Refresh"
                         }
                     }
                 ],
@@ -77,7 +77,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Refresh"
+                            "$ref": "#/definitions/response.Refresh"
                         }
                     }
                 }
@@ -103,7 +103,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.GetRooms"
+                            "$ref": "#/definitions/request.GetRooms"
                         }
                     }
                 ],
@@ -111,8 +111,44 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.GetAllRooms"
+                            "$ref": "#/definitions/response.GetAllRooms"
                         }
+                    }
+                }
+            }
+        },
+        "/v1/hotel/rooms/light": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Тогл света в комнате",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "отель"
+                ],
+                "summary": "Свет",
+                "parameters": [
+                    {
+                        "description": "Тело запроса",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Light"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -142,7 +178,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.ReserveRoom"
+                            "$ref": "#/definitions/request.ReserveRoom"
                         }
                     }
                 ],
@@ -181,7 +217,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.Room"
+                            "$ref": "#/definitions/response.RoomInfo"
                         }
                     }
                 }
@@ -189,7 +225,38 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.GetRooms": {
+        "entity.Room": {
+            "type": "object",
+            "properties": {
+                "floor": {
+                    "type": "integer"
+                },
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "room_number": {
+                    "type": "string"
+                },
+                "room_type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "entity.RoomType": {
+            "type": "object",
+            "properties": {
+                "capacity": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.GetRooms": {
             "type": "object",
             "required": [
                 "end_date",
@@ -206,7 +273,19 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Login": {
+        "request.Light": {
+            "type": "object",
+            "required": [
+                "state"
+            ],
+            "properties": {
+                "state": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "request.Login": {
             "type": "object",
             "required": [
                 "login"
@@ -224,7 +303,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Refresh": {
+        "request.Refresh": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -236,7 +315,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.ReserveRoom": {
+        "request.ReserveRoom": {
             "type": "object",
             "required": [
                 "end_date",
@@ -258,18 +337,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.GetAllRooms": {
+        "response.GetAllRooms": {
             "type": "object",
             "properties": {
                 "rooms": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.RoomType"
+                        "$ref": "#/definitions/entity.RoomType"
                     }
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Login": {
+        "response.Login": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -281,11 +360,11 @@ const docTemplate = `{
                     "example": "refresh_token"
                 },
                 "user": {
-                    "$ref": "#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.User"
+                    "$ref": "#/definitions/response.User"
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Refresh": {
+        "response.Refresh": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -298,7 +377,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.User": {
+        "response.RoomInfo": {
+            "type": "object",
+            "properties": {
+                "is_active": {
+                    "type": "boolean"
+                },
+                "room": {
+                    "$ref": "#/definitions/entity.Room"
+                }
+            }
+        },
+        "response.User": {
             "type": "object",
             "properties": {
                 "business_id": {
@@ -314,37 +404,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.Room": {
-            "type": "object",
-            "properties": {
-                "floor": {
-                    "type": "integer"
-                },
-                "hotel_id": {
-                    "type": "integer"
-                },
-                "room_number": {
-                    "type": "string"
-                },
-                "room_type_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.RoomType": {
-            "type": "object",
-            "properties": {
-                "capacity": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
                     "type": "string"
                 }
             }

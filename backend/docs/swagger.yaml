@@ -1,5 +1,25 @@
 definitions:
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.GetRooms:
+  entity.Room:
+    properties:
+      floor:
+        type: integer
+      hotel_id:
+        type: integer
+      room_number:
+        type: string
+      room_type_id:
+        type: integer
+    type: object
+  entity.RoomType:
+    properties:
+      capacity:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  request.GetRooms:
     properties:
       end_date:
         example: 29.05.2026
@@ -11,7 +31,15 @@ definitions:
     - end_date
     - start_date
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Login:
+  request.Light:
+    properties:
+      state:
+        example: true
+        type: boolean
+    required:
+    - state
+    type: object
+  request.Login:
     properties:
       login:
         example: admin
@@ -24,7 +52,7 @@ definitions:
     required:
     - login
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Refresh:
+  request.Refresh:
     properties:
       refresh_token:
         example: refresh_token
@@ -32,7 +60,7 @@ definitions:
     required:
     - refresh_token
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.ReserveRoom:
+  request.ReserveRoom:
     properties:
       end_date:
         example: 29.05.2026
@@ -48,14 +76,14 @@ definitions:
     - room_type
     - start_date
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.GetAllRooms:
+  response.GetAllRooms:
     properties:
       rooms:
         items:
-          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.RoomType'
+          $ref: '#/definitions/entity.RoomType'
         type: array
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Login:
+  response.Login:
     properties:
       access_token:
         example: access_token
@@ -64,9 +92,9 @@ definitions:
         example: refresh_token
         type: string
       user:
-        $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.User'
+        $ref: '#/definitions/response.User'
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Refresh:
+  response.Refresh:
     properties:
       access_token:
         example: access_token
@@ -75,7 +103,14 @@ definitions:
         example: refresh_token
         type: string
     type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.User:
+  response.RoomInfo:
+    properties:
+      is_active:
+        type: boolean
+      room:
+        $ref: '#/definitions/entity.Room'
+    type: object
+  response.User:
     properties:
       business_id:
         type: integer
@@ -86,26 +121,6 @@ definitions:
       login:
         type: string
       user_type:
-        type: string
-    type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.Room:
-    properties:
-      floor:
-        type: integer
-      hotel_id:
-        type: integer
-      room_number:
-        type: string
-      room_type_id:
-        type: integer
-    type: object
-  github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.RoomType:
-    properties:
-      capacity:
-        type: integer
-      id:
-        type: integer
-      name:
         type: string
     type: object
 info:
@@ -124,14 +139,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Login'
+          $ref: '#/definitions/request.Login'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Login'
+            $ref: '#/definitions/response.Login'
       summary: Логин
       tags:
       - аутентификация
@@ -146,14 +161,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.Refresh'
+          $ref: '#/definitions/request.Refresh'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.Refresh'
+            $ref: '#/definitions/response.Refresh'
       summary: Регенерация токена
       tags:
       - аутентификация
@@ -168,14 +183,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.GetRooms'
+          $ref: '#/definitions/request.GetRooms'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_response.GetAllRooms'
+            $ref: '#/definitions/response.GetAllRooms'
       summary: Получение доступных типов комнат
       tags:
       - отель
@@ -194,10 +209,32 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_entity.Room'
+            $ref: '#/definitions/response.RoomInfo'
       security:
       - BearerAuth: []
       summary: Получение информации по комнате для админки
+      tags:
+      - отель
+  /v1/hotel/rooms/light:
+    post:
+      consumes:
+      - application/json
+      description: Тогл света в комнате
+      parameters:
+      - description: Тело запроса
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/request.Light'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Свет
       tags:
       - отель
   /v1/hotel/rooms/reserve:
@@ -211,7 +248,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github_com_usamaroman_demo_indev_hackathon_backend_internal_controller_v1_request.ReserveRoom'
+          $ref: '#/definitions/request.ReserveRoom'
       produces:
       - application/json
       responses:
