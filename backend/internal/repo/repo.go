@@ -25,6 +25,8 @@ type Hotel interface {
 	RoomHasReservations(ctx context.Context, id string) (bool, error)
 	GetUserCurrentReservation(ctx context.Context, userID int64) (*entity.Reservation, error)
 	UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error
+	RoomReservationStatus(ctx context.Context, id string) (string, error)
+	GetReservationsByStatus(ctx context.Context, status string) ([]entity.ReservationInfo, error)
 }
 
 type Repositories struct {

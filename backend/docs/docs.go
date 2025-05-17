@@ -173,6 +173,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/hotel/rooms/reservations/confirmed": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Получение бронирований, до заезда клиента",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "отель"
+                ],
+                "summary": "Получение бронирований, до заезда клиента",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.ReservationInfo"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/hotel/rooms/reservations/{id}": {
             "patch": {
                 "security": [
@@ -316,6 +347,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.ReservationInfo": {
+            "type": "object",
+            "properties": {
+                "check_in": {
+                    "type": "string"
+                },
+                "check_out": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "entity.Room": {
             "type": "object",
             "properties": {
@@ -484,11 +544,11 @@ const docTemplate = `{
         "response.RoomInfo": {
             "type": "object",
             "properties": {
-                "is_active": {
-                    "type": "boolean"
-                },
                 "room": {
                     "$ref": "#/definitions/entity.Room"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },

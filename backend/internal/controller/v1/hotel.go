@@ -11,7 +11,6 @@ import (
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/middleware"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/request"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1/response"
-	_ "github.com/usamaroman/demo_indev_hackathon/backend/internal/entity"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/entity/types"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
@@ -51,6 +50,8 @@ func newHotelRoutes(log *slog.Logger, g *gin.RouterGroup, hotelService service.H
 	g.POST("/rooms/light", authMiddleware.CustomersOnly(), r.roomLights)
 	g.GET("/rooms/token", authMiddleware.CustomersOnly(), r.getRoomToken)
 	g.GET("/rooms/dump_token", r.getToken)
+	g.GET("/rooms/reservations/confirmed", authMiddleware.HotelsOnly(), r.getConfirmedReservations)
+	g.GET("/rooms/reservations/checkedin", authMiddleware.HotelsOnly(), r.getCheckedInReservations)
 }
 
 // @Summary Получение доступных типов комнат
@@ -123,9 +124,9 @@ func (r *hotelRoutes) getRoomByID(c *gin.Context) {
 		return
 	}
 
-	hasRsv, err := r.hotelService.RoomHasReservations(c, roomID)
+	resStatus, err := r.hotelService.RoomReservationStatus(c, roomID)
 	if err != nil {
-		r.log.Error("failed to get if room has reservations", logger.Error(err))
+		r.log.Error("failed to get room reservation status", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -134,8 +135,8 @@ func (r *hotelRoutes) getRoomByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.RoomInfo{
-		Room:     room,
-		IsActive: hasRsv,
+		Room:   room,
+		Status: resStatus,
 	})
 }
 
@@ -363,4 +364,48 @@ func (r *hotelRoutes) getRoomToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response.Token{Token: token})
+}
+
+// @Summary Получение бронирований, в которые еще не заехали
+// @Description Получение бронирований, в которые еще не заехали
+// @Security BearerAuth
+// @Tags отель
+// @Accept json
+// @Produce json
+// @Success 200 {object} []entity.ReservationInfo
+// @Router /v1/hotel/rooms/reservations/confirmed [get]
+func (r *hotelRoutes) getConfirmedReservations(c *gin.Context) {
+	res, err := r.hotelService.GetReservationsByStatus(c, types.Confirmed.String())
+	if err != nil {
+		r.log.Error("failed to get confirmed reservations", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+// @Summary Получение бронирований, в которые заехали
+// @Description Получение бронирований, в которые заехали
+// @Security BearerAuth
+// @Tags отель
+// @Accept json
+// @Produce json
+// @Success 200 {object} []entity.ReservationInfo
+// @Router /v1/hotel/rooms/reservations/confirmed [get]
+func (r *hotelRoutes) getCheckedInReservations(c *gin.Context) {
+	res, err := r.hotelService.GetReservationsByStatus(c, types.CheckedIn.String())
+	if err != nil {
+		r.log.Error("failed to get confirmed reservations", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }

@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -11,7 +10,6 @@ import (
 	v1 "github.com/usamaroman/demo_indev_hackathon/backend/internal/controller/v1"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/repo"
 	"github.com/usamaroman/demo_indev_hackathon/backend/internal/service"
-	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/box"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/httpsrv"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/logger"
 	"github.com/usamaroman/demo_indev_hackathon/backend/pkg/migrations"
@@ -32,13 +30,13 @@ func Run() {
 		os.Exit(1)
 	}
 
-	log.Debug("box init")
-
-	b, err := box.New(log, "192.168.1.100", "7000")
-	if err != nil {
-		log.Error("failed to init box", logger.Error(err))
-		os.Exit(1)
-	}
+	// log.Debug("box init")
+	//
+	// b, err := box.New(log, "192.168.1.100", "7000")
+	// if err != nil {
+	// 	log.Error("failed to init box", logger.Error(err))
+	// 	os.Exit(1)
+	// }
 
 	log.Debug("postgresql starting")
 	postgres, err := postgresql.New(log, &cfg.Postgresql)
@@ -54,10 +52,10 @@ func Run() {
 		os.Exit(1)
 	}
 
-	if err = redisClient.Set(context.Background(), b.GetBleName(), b.GetToken(), 0).Err(); err != nil {
-		log.Error("failed to init redis", logger.Error(err))
-		os.Exit(1)
-	}
+	// if err = redisClient.Set(context.Background(), b.GetBleName(), b.GetToken(), 0).Err(); err != nil {
+	// 	log.Error("failed to init redis", logger.Error(err))
+	// 	os.Exit(1)
+	// }
 
 	migrations.Migrate(log, &schema.DB, &cfg.Postgresql)
 
@@ -74,7 +72,7 @@ func Run() {
 	})
 
 	r := router()
-	v1.NewRouter(log, r, services, b, redisClient)
+	v1.NewRouter(log, r, services, nil, redisClient)
 
 	log.Debug("server starting")
 	server := httpsrv.New(log, cfg, r)

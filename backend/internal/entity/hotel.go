@@ -32,3 +32,14 @@ type Reservation struct {
 	Status    string    `json:"status" db:"status"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
+
+type ReservationInfo struct {
+	ID        int64     `json:"id" db:"id"`
+	UserID    int64     `json:"user_id" db:"user_id"`
+	RoomID    string    `json:"room_id" db:"room_id"`
+	CheckIn   time.Time `json:"check_in" db:"check_in"`
+	CheckOut  time.Time `json:"check_out" db:"check_out"`
+	Status    string    `json:"status" db:"status"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	Login     string    `json:"login" db:"login"`
+}

@@ -1,4 +1,23 @@
 definitions:
+  entity.ReservationInfo:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      login:
+        type: string
+      room_id:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
   entity.Room:
     properties:
       floor:
@@ -114,10 +133,10 @@ definitions:
     type: object
   response.RoomInfo:
     properties:
-      is_active:
-        type: boolean
       room:
         $ref: '#/definitions/entity.Room'
+      status:
+        type: string
     type: object
   response.Token:
     properties:
@@ -289,6 +308,25 @@ paths:
       security:
       - BearerAuth: []
       summary: Обновление статуса брони
+      tags:
+      - отель
+  /v1/hotel/rooms/reservations/confirmed:
+    get:
+      consumes:
+      - application/json
+      description: Получение бронирований, до заезда клиента
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.ReservationInfo'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Получение бронирований, до заезда клиента
       tags:
       - отель
   /v1/hotel/rooms/reserve:

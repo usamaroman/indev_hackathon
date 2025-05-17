@@ -75,3 +75,11 @@ func (s *HotelService) GetUserCurrentReservation(ctx context.Context, userID int
 func (s *HotelService) UpdateReservationStatus(ctx context.Context, id string, status types.ReservationType) error {
 	return s.hotelRepo.UpdateReservationStatus(ctx, id, status)
 }
+
+func (s *HotelService) RoomReservationStatus(ctx context.Context, id string) (string, error) {
+	return s.hotelRepo.RoomReservationStatus(ctx, id)
+}
+
+func (s *HotelService) GetReservationsByStatus(ctx context.Context, status string) ([]entity.ReservationInfo, error) {
+	return s.hotelRepo.GetReservationsByStatus(ctx, status)
+}

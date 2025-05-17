@@ -83,6 +83,24 @@ func (r *Repo) GetRoomInfoByID(ctx context.Context, id string) (*entity.Room, er
 	return &room, nil
 }
 
+func (r *Repo) RoomReservationStatus(ctx context.Context, id string) (string, error) {
+	q := "select res.status from reservations res where res.room_id like $1 and (current_date >= res.check_in or current_date <= res.check_out) and res.status != 'checked_out' order by res.check_in asc limit 1"
+
+	r.log.Debug("get room reservation status query", slog.String("query", q), slog.String("id", id))
+
+	var status string
+	if err := r.Pool.QueryRow(ctx, q, id).Scan(&status); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "available", nil
+		}
+
+		r.log.Error("failed to get room reservation status from database", logger.Error(err))
+		return "", err
+	}
+
+	return status, nil
+}
+
 func (r *Repo) RoomHasReservations(ctx context.Context, id string) (bool, error) {
 	q := "select count(*) from rooms r join reservations res on r.room_number = res.room_id where room_number like $1 and current_date between res.check_in and res.check_out"
 
@@ -199,4 +217,26 @@ func (r *Repo) UpdateReservationStatus(ctx context.Context, id string, status ty
 	}
 
 	return nil
+}
+
+func (r *Repo) GetReservationsByStatus(ctx context.Context, status string) ([]entity.ReservationInfo, error) {
+	q := "SELECT res.id, res.user_id, res.room_id, res.check_in, res.check_out, res.status, res.created_at, u.login from reservations res join users u on res.user_id = u.id WHERE res.status = $1"
+
+	r.log.Debug("get confirmed reservations query", slog.String("query", q))
+
+	rows, err := r.Pool.Query(ctx, q, status)
+	if err != nil {
+		r.log.Error("failed to get confirmed reservations from database", logger.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+
+	reservations, err := pgx.CollectRows(rows, pgx.RowToStructByName[entity.ReservationInfo])
+	if err != nil {
+		r.log.Error("failed to collect rows", logger.Error(err))
+		return nil, err
+	}
+
+	return reservations, nil
+
 }

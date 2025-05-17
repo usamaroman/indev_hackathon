@@ -7,8 +7,8 @@ type GetAllRooms struct {
 }
 
 type RoomInfo struct {
-	Room     *entity.Room `json:"room"`
-	IsActive bool         `json:"is_active"`
+	Room   *entity.Room `json:"room"`
+	Status string       `json:"status"`
 }
 
 type Token struct {
