@@ -18,7 +18,6 @@ const [isLoading, setIsLoading] = useState(true);
       try {
         const authData = await login();
         console.log('Login successful', authData);
-        // Store token if needed
         localStorage.setItem('authToken', authData.access_token);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Login failed');

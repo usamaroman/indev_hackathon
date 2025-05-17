@@ -6,7 +6,7 @@ import clsx from 'clsx'
 
 const navItems = [
   { href: '/map', label: 'Карта' },
-  { href: '/load', label: 'Загруженность' },
+  { href: '/reservations', label: 'Бронирования' },
 ]
 
 export default function Navbar() {
